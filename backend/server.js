@@ -1,63 +1,30 @@
-require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('./mongoConfig');
-const User = require('./models/User');
-const db = require('./dbConfig'); // PostgreSQL config
 const corsMiddleware = require('./corsMiddleware');
+const dotenv = require('dotenv');
+
+const connectMongo = require('./config/mongo');
+const { connectPostgres } = require('./config/postgres');
+const bookRoutes = require('./routes/bookRoutes');
+const mongoose = require('mongoose');
+
+mongoose.set('strictQuery', false);
+dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3001;
 
 app.use(corsMiddleware);
 app.use(bodyParser.json());
 
-app.get('/users', async (req, res) => {
-  try {
-    const result = await db.query('SELECT * FROM users');
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
-  }
-});
+app.use('/api', bookRoutes);
 
-app.post('/users', async (req, res) => {
-  const { name, email } = req.body;
-  try {
-    const result = await db.query(
-      'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
-      [name, email]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
-  }
-});
+const PORT = process.env.PORT || 3001;
 
-app.get('/mongo-users', async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
-  }
-});
+const startServer = async () => {
+  await connectPostgres();
+  await connectMongo();
+};
 
-app.post('/mongo-users', async (req, res) => {
-  const { name, email } = req.body;
-  try {
-    const newUser = new User({ name, email });
-    await newUser.save();
-    res.status(201).json(newUser);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
-  }
-});
+startServer();
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+module.exports = app;

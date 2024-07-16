@@ -1,0 +1,31 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "ond3kJ39gcXRVvxA",
+    "database": "postgres",
+    "host": "evilly-dauntless-tiger.data-1.use1.tembo.io",
+    "dialect": "postgres",
+    "port": "5432",
+    "dialectOptions": {
+      "connectTimeout": 60000,
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}
